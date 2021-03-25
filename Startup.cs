@@ -20,10 +20,10 @@ namespace Asteya
             services.AddTransient<IDataService, DataService>();
             services.AddTransient<IDemoServices, DemoServices>();
 
-            services.AddOptions<IDemoServices>("")
-            .Configure<IDemoServices>((demoServiceInstance, myService) =>
+            services.AddOptions<IDemoServices>("ProxyDecorate")
+            .Configure<ILoggingService, IDataService>((demoService, loggingService, dataService) =>
             {
-                return DispatchProxyCore<IDemoServices>.Decorate(demoServiceInstance, myService);
+                return DispatchProxyCore<IDemoServices>.Decorate(demoService, loggingService, dataService);
             });
         }
 

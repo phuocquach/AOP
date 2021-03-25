@@ -1,7 +1,5 @@
-﻿using System;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Reflection;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Asteya.Infrastructure.Core
 {
@@ -11,13 +9,13 @@ namespace Asteya.Infrastructure.Core
         private ILoggingService _loggingService;
         private IDataService _dataService;
         public T Target { get; private set; }
-        public static T Decorate(T target, IServiceProvider serviceProvider)
+        public static T Decorate(T target, ILoggingService loggingService, IDataService dataService)
         {
             var proxy = Create<T, DispatchProxyCore<T>>()
                 as DispatchProxyCore<T>;
 
-            SetParameter(proxy, serviceProvider);
-
+            proxy._dataService = dataService;
+            proxy._loggingService = loggingService;
             proxy.Target = target;
 
             return proxy as T;
@@ -46,11 +44,6 @@ namespace Asteya.Infrastructure.Core
                 _dataService.CreateLog(exc.InnerException);
                 throw exc.InnerException;
             }
-        }
-        private static void SetParameter(DispatchProxyCore<T> dispatchProxy, IServiceProvider serviceProvider)
-        {
-            dispatchProxy._loggingService = serviceProvider.GetRequiredService<ILoggingService>();
-            dispatchProxy._dataService = serviceProvider.GetRequiredService<IDataService>();
         }
     }
 }
